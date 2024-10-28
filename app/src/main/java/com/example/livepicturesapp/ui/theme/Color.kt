@@ -1,11 +1,35 @@
 package com.example.livepicturesapp.ui.theme
 
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+@Immutable
+data class LivePicturesColors(
+    val green: Color,
+    val white: Color,
+    val black: Color,
+    val blue: Color,
+    val red: Color,
+    val gray: Color,
+)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val LocalLivePicturesColors = staticCompositionLocalOf {
+    LivePicturesColors(
+        green = Color.Unspecified,
+        white = Color.Unspecified,
+        black = Color.Unspecified,
+        blue = Color.Unspecified,
+        red = Color.Unspecified,
+        gray = Color.Unspecified,
+    )
+}
+
+val livePicturesColors = LivePicturesColors(
+    green = Color(0xFFA8DB10),
+    white = Color(0xFFFFFFFF),
+    black = Color(0xFF000000),
+    blue = Color(0xFF1976D2),
+    red = Color(0xFFFF3D00),
+    gray = Color(0xFF8B8B8B),
+)
