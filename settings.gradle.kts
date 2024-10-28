@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "LivePicturesApp"
 include(":app")
- 
+include(":mvi")
