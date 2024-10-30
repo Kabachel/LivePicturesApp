@@ -16,10 +16,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.livepicturesapp.R
+import com.example.livepicturesapp.editor.model.InteractType
 import com.example.livepicturesapp.ui.theme.LivePicturesTheme
 
 @Composable
 internal fun Footer(
+    interactType: InteractType,
     onPencilClick: () -> Unit,
     onBrushClick: () -> Unit,
     onEraseClick: () -> Unit,
@@ -33,7 +35,11 @@ internal fun Footer(
         Icon(
             painter = painterResource(R.drawable.ic_pencil),
             contentDescription = "Choose pencil",
-            tint = LivePicturesTheme.colors.white,
+            tint = if (interactType == InteractType.Draw) {
+                LivePicturesTheme.colors.green
+            } else {
+                LivePicturesTheme.colors.white
+            },
             modifier = Modifier
                 .size(32.dp)
                 .weight(1f, fill = false)
@@ -53,7 +59,11 @@ internal fun Footer(
         Icon(
             painter = painterResource(R.drawable.ic_erase),
             contentDescription = "Choose erase",
-            tint = LivePicturesTheme.colors.white,
+            tint = if (interactType == InteractType.Erase) {
+                LivePicturesTheme.colors.green
+            } else {
+                LivePicturesTheme.colors.white
+            },
             modifier = Modifier
                 .size(32.dp)
                 .weight(1f, fill = false)
@@ -86,6 +96,7 @@ internal fun Footer(
 private fun FooterPreview() {
     LivePicturesTheme {
         Footer(
+            interactType = InteractType.Move,
             onPencilClick = {},
             onBrushClick = {},
             onEraseClick = {},

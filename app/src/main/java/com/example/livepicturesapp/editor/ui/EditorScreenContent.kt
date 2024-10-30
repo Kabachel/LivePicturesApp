@@ -47,9 +47,10 @@ fun EditorScreenContent() {
     val motionType = remember { mutableStateOf(MotionType.Idle) }
     val currentPosition = remember { mutableStateOf(Offset.Unspecified) }
     val previousPosition = remember { mutableStateOf(Offset.Unspecified) }
-    val interactMode = remember { mutableStateOf(InteractType.Draw) }
+    val interactMode = remember { mutableStateOf(InteractType.Move) }
     val currentPath = remember { mutableStateOf(Path()) }
     val currentPathProperty = remember { mutableStateOf(PathProperties()) }
+    val showPropertiesDialog = remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -83,15 +84,32 @@ fun EditorScreenContent() {
         EmptySpacer(32.dp)
         DrawingArea(paths, pathsUndone, motionType, currentPosition, previousPosition, interactMode, currentPath, currentPathProperty)
         EmptySpacer(22.dp)
+
         Footer(
-            onPencilClick = {},
-            onBrushClick = {},
-            onEraseClick = {},
+            interactMode.value,
+            onPencilClick = {
+                if (interactMode.value == InteractType.Draw) {
+                    interactMode.value = InteractType.Move
+                } else {
+                    interactMode.value = InteractType.Draw
+                }
+            },
+            onBrushClick = { showPropertiesDialog.value = !showPropertiesDialog.value },
+            onEraseClick = {
+                if (interactMode.value == InteractType.Erase) {
+                    interactMode.value = InteractType.Move
+                } else {
+                    interactMode.value = InteractType.Erase
+                }
+                currentPathProperty.value = currentPathProperty.value.copy(isErase = interactMode.value == InteractType.Erase)
+            },
             onFiguresClick = {},
             onColorClick = {},
         )
         EmptySpacer(16.dp)
     }
+
+    PathPropertiesDialog(currentPathProperty.value, showPropertiesDialog)
 }
 
 @Composable
