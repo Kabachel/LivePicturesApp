@@ -10,7 +10,7 @@ sealed interface State : ViewState {
 sealed interface Event : ViewEvent {
     /* Header */
     data object Undo : Event
-    data object CancelUndo : Event
+    data object Redo : Event
     data object DeleteFrame : Event
     data object CreateFrame : Event
     data object ShowFrames : Event
