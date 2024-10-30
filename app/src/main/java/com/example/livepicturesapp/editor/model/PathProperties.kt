@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.StrokeJoin
  */
 data class PathProperties(
     var strokeWidth: Float = 15f,
-    var color: Color = Color.Black,
+    var color: Color = Color.Blue,
     var strokeCap: StrokeCap = StrokeCap.Round,
     var strokeJoin: StrokeJoin = StrokeJoin.Round,
     var isErase: Boolean = false

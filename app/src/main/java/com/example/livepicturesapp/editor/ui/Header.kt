@@ -20,6 +20,8 @@ import com.example.livepicturesapp.ui.theme.LivePicturesTheme
 
 @Composable
 internal fun Header(
+    isPathsEmpty: Boolean,
+    isPathsUndoneEmpty: Boolean,
     onUndoClick: () -> Unit,
     onRedoClick: () -> Unit,
     onDeleteFrameClick: () -> Unit,
@@ -35,7 +37,7 @@ internal fun Header(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        ArrowsButtons(onUndoClick, onRedoClick)
+        ArrowsButtons(onUndoClick, onRedoClick, isPathsEmpty, isPathsUndoneEmpty)
         FrameButtons(onDeleteFrameClick, onCreateFrameClick, onShowFramesClick)
         PlayPauseButtons(onPauseClick, onPlayClick)
     }
@@ -44,28 +46,30 @@ internal fun Header(
 @Composable
 private fun ArrowsButtons(
     onUndoClick: () -> Unit,
-    onRedoClick: () -> Unit
+    onRedoClick: () -> Unit,
+    isPathsEmpty: Boolean,
+    isPathsUndoneEmpty: Boolean
 ) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Icon(
             painter = painterResource(R.drawable.ic_arrow_left),
             contentDescription = "Undo last action",
-            tint = LivePicturesTheme.colors.white,
+            tint = if (isPathsEmpty) LivePicturesTheme.colors.gray else LivePicturesTheme.colors.white,
             modifier = Modifier
                 .size(24.dp)
                 .weight(1f, fill = false)
                 .clip(CircleShape)
-                .clickable { onUndoClick() },
+                .clickable(enabled = !isPathsEmpty) { onUndoClick() },
         )
         Icon(
             painter = painterResource(R.drawable.ic_arrow_right),
             contentDescription = "Return the last canceled action",
-            tint = LivePicturesTheme.colors.white,
+            tint = if (isPathsUndoneEmpty) LivePicturesTheme.colors.gray else LivePicturesTheme.colors.white,
             modifier = Modifier
                 .size(24.dp)
                 .weight(1f, fill = false)
                 .clip(CircleShape)
-                .clickable { onRedoClick() },
+                .clickable(enabled = !isPathsUndoneEmpty) { onRedoClick() },
         )
     }
 }
@@ -80,7 +84,7 @@ private fun FrameButtons(
         Icon(
             painter = painterResource(R.drawable.ic_bin),
             contentDescription = "Delete frame",
-            tint = LivePicturesTheme.colors.white,
+            tint = LivePicturesTheme.colors.gray,
             modifier = Modifier
                 .size(32.dp)
                 .weight(1f, fill = false)
@@ -90,7 +94,7 @@ private fun FrameButtons(
         Icon(
             painter = painterResource(R.drawable.ic_file_plus),
             contentDescription = "Create frame",
-            tint = LivePicturesTheme.colors.white,
+            tint = LivePicturesTheme.colors.gray,
             modifier = Modifier
                 .size(32.dp)
                 .weight(1f, fill = false)
@@ -100,7 +104,7 @@ private fun FrameButtons(
         Icon(
             painter = painterResource(R.drawable.ic_layers),
             contentDescription = "Show all frames",
-            tint = LivePicturesTheme.colors.white,
+            tint = LivePicturesTheme.colors.gray,
             modifier = Modifier
                 .size(32.dp)
                 .weight(1f, fill = false)
@@ -119,7 +123,7 @@ private fun PlayPauseButtons(
         Icon(
             painter = painterResource(R.drawable.ic_pause),
             contentDescription = "Pause animation",
-            tint = LivePicturesTheme.colors.white,
+            tint = LivePicturesTheme.colors.gray,
             modifier = Modifier
                 .size(32.dp)
                 .weight(1f, fill = false)
@@ -129,7 +133,7 @@ private fun PlayPauseButtons(
         Icon(
             painter = painterResource(R.drawable.ic_play),
             contentDescription = "Play animation",
-            tint = LivePicturesTheme.colors.white,
+            tint = LivePicturesTheme.colors.gray,
             modifier = Modifier
                 .size(32.dp)
                 .weight(1f, fill = false)
@@ -144,6 +148,8 @@ private fun PlayPauseButtons(
 private fun HeaderPreview() {
     LivePicturesTheme {
         Header(
+            isPathsEmpty = false,
+            isPathsUndoneEmpty = false,
             onUndoClick = {},
             onRedoClick = {},
             onDeleteFrameClick = {},

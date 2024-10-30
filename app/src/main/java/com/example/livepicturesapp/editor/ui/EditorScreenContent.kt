@@ -36,6 +36,8 @@ import com.example.livepicturesapp.editor.model.DrawingPath
 import com.example.livepicturesapp.editor.model.InteractType
 import com.example.livepicturesapp.editor.model.MotionType
 import com.example.livepicturesapp.editor.model.PathProperties
+import com.example.livepicturesapp.editor.ui.dialogs.ColorPickerDialog
+import com.example.livepicturesapp.editor.ui.dialogs.PathPropertiesDialog
 import com.example.livepicturesapp.editor.utils.dragMotionEvent
 import com.example.livepicturesapp.ui.components.EmptySpacer
 import com.example.livepicturesapp.ui.theme.LivePicturesTheme
@@ -51,6 +53,7 @@ fun EditorScreenContent() {
     val currentPath = remember { mutableStateOf(Path()) }
     val currentPathProperty = remember { mutableStateOf(PathProperties()) }
     val showPropertiesDialog = remember { mutableStateOf(false) }
+    val showColorPickerDialog = remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -61,6 +64,8 @@ fun EditorScreenContent() {
     ) {
         EmptySpacer(16.dp)
         Header(
+            isPathsEmpty = paths.isEmpty(),
+            isPathsUndoneEmpty = pathsUndone.isEmpty(),
             onUndoClick = {
                 if (paths.isNotEmpty()) {
                     val lastDrawingPath = paths.last()
@@ -86,30 +91,36 @@ fun EditorScreenContent() {
         EmptySpacer(22.dp)
 
         Footer(
-            interactMode.value,
+            interactType = interactMode.value,
+            selectedColor = currentPathProperty.value.color,
+            showPathProperties = showPropertiesDialog.value,
+            showColorPicker = showColorPickerDialog.value,
             onPencilClick = {
                 if (interactMode.value == InteractType.Draw) {
                     interactMode.value = InteractType.Move
                 } else {
                     interactMode.value = InteractType.Draw
                 }
+                currentPathProperty.value = currentPathProperty.value.copy(isErase = false)
             },
             onBrushClick = { showPropertiesDialog.value = !showPropertiesDialog.value },
             onEraseClick = {
                 if (interactMode.value == InteractType.Erase) {
                     interactMode.value = InteractType.Move
+                    currentPathProperty.value = currentPathProperty.value.copy(isErase = false)
                 } else {
                     interactMode.value = InteractType.Erase
+                    currentPathProperty.value = currentPathProperty.value.copy(isErase = true)
                 }
-                currentPathProperty.value = currentPathProperty.value.copy(isErase = interactMode.value == InteractType.Erase)
             },
             onFiguresClick = {},
-            onColorClick = {},
+            onColorClick = { showColorPickerDialog.value = !showColorPickerDialog.value },
         )
         EmptySpacer(16.dp)
     }
 
     PathPropertiesDialog(currentPathProperty.value, showPropertiesDialog)
+    ColorPickerDialog(currentPathProperty.value, showColorPickerDialog)
 }
 
 @Composable
@@ -213,7 +224,11 @@ private fun DrawingAreaContent(
                 _currentPosition.value = Offset.Unspecified
                 _previousPosition.value = Offset.Unspecified
                 _motionType.value = MotionType.Idle
-                pathsUndone.clear()
+                _currentPath.value = Path()
+                _currentPathProperty.value = _currentPathProperty.value.copy()
+                if (interactMode != InteractType.Move) {
+                    pathsUndone.clear()
+                }
             }
 
             MotionType.Idle -> Unit
@@ -240,9 +255,9 @@ private fun DrawingAreaContent(
                     color = Color.Transparent,
                     path = path,
                     style = Stroke(
-                        width = currentPathProperty.strokeWidth,
-                        cap = currentPathProperty.strokeCap,
-                        join = currentPathProperty.strokeJoin
+                        width = property.strokeWidth,
+                        cap = property.strokeCap,
+                        join = property.strokeJoin
                     ),
                     blendMode = BlendMode.Clear
                 )

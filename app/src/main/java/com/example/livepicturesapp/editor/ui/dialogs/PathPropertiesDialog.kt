@@ -1,4 +1,4 @@
-package com.example.livepicturesapp.editor.ui
+package com.example.livepicturesapp.editor.ui.dialogs
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
