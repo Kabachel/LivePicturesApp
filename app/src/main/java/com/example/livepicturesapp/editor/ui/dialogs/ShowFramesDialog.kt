@@ -19,8 +19,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asAndroidPath
@@ -79,6 +77,8 @@ private fun FrameCard(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        val whiteColor = LivePicturesTheme.colors.white
+
         Text("$index Layer")
         EmptySpacer(8.dp)
         Canvas(
@@ -112,14 +112,15 @@ private fun FrameCard(
                     )
                 } else {
                     drawPath(
-                        color = Color.Transparent,
+                        // TODO hardcode color for erase, BlendMode.Clear is not working
+                        color = whiteColor,
                         path = transformedPath,
                         style = Stroke(
                             width = (property.strokeWidth / 10) + 1,
                             cap = property.strokeCap,
                             join = property.strokeJoin
                         ),
-                        blendMode = BlendMode.Clear
+//                        blendMode = BlendMode.Clear
                     )
                 }
             }
