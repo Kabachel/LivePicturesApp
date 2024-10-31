@@ -3,9 +3,11 @@ package com.example.livepicturesapp.editor.ui.dialogs
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -28,6 +30,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -81,11 +84,22 @@ internal fun PathPropertiesDialog(pathProperties: PathProperties, showProperties
 
                 EmptySpacer(32.dp)
 
-                Text(
-                    text = "Stroke Width: ${strokeWidth.toInt()}",
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(horizontal = 12.dp)
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Stroke Width: ",
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(horizontal = 12.dp)
+                    )
+                    TextField(
+                        value = strokeWidth.toInt().toString(),
+                        onValueChange = {
+                            var newValue = it.toFloatOrNull() ?: 1f
+                            if (newValue > 100f) newValue = 100f
+                            strokeWidth = newValue
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    )
+                }
 
                 Slider(
                     value = strokeWidth,

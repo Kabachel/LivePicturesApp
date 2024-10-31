@@ -33,14 +33,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.livepicturesapp.R
 import com.example.livepicturesapp.editor.model.DrawingPath
+import com.example.livepicturesapp.editor.model.Frame
 import com.example.livepicturesapp.editor.model.InteractType
 import com.example.livepicturesapp.editor.model.MotionType
 import com.example.livepicturesapp.editor.model.PathProperties
+import com.example.livepicturesapp.editor.repository.FrameRepository
 import com.example.livepicturesapp.editor.ui.dialogs.ColorPickerDialog
 import com.example.livepicturesapp.editor.ui.dialogs.PathPropertiesDialog
+import com.example.livepicturesapp.editor.ui.dialogs.ShowFramesDialog
 import com.example.livepicturesapp.editor.utils.dragMotionEvent
 import com.example.livepicturesapp.ui.components.EmptySpacer
 import com.example.livepicturesapp.ui.theme.LivePicturesTheme
+
+val frameRepository = FrameRepository()
 
 @Composable
 fun EditorScreenContent() {
@@ -54,6 +59,7 @@ fun EditorScreenContent() {
     val currentPathProperty = remember { mutableStateOf(PathProperties()) }
     val showPropertiesDialog = remember { mutableStateOf(false) }
     val showColorPickerDialog = remember { mutableStateOf(false) }
+    val showFramesDialog = remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -81,8 +87,18 @@ fun EditorScreenContent() {
                 }
             },
             onDeleteFrameClick = {},
-            onCreateFrameClick = {},
-            onShowFramesClick = {},
+            onCreateFrameClick = {
+                val frame = Frame(paths.toList())
+                frameRepository.addFrame(frame)
+
+                paths.clear()
+                pathsUndone.clear()
+                currentPath.value = Path()
+                currentPosition.value = Offset.Unspecified
+                previousPosition.value = Offset.Unspecified
+                currentPathProperty.value = currentPathProperty.value.copy()
+            },
+            onShowFramesClick = { showFramesDialog.value = !showFramesDialog.value },
             onPauseClick = {},
             onPlayClick = {},
         )
@@ -121,6 +137,20 @@ fun EditorScreenContent() {
 
     PathPropertiesDialog(currentPathProperty.value, showPropertiesDialog)
     ColorPickerDialog(currentPathProperty.value, showColorPickerDialog)
+    ShowFramesDialog(
+        frames = frameRepository.getFrames(),
+        showFramesDialog = showFramesDialog,
+        onFrameSelected = { selectedFrame ->
+            paths.clear()
+            pathsUndone.clear()
+            currentPath.value = Path()
+            currentPosition.value = Offset.Unspecified
+            previousPosition.value = Offset.Unspecified
+            currentPathProperty.value = currentPathProperty.value.copy()
+
+            paths += selectedFrame.drawingPaths
+        }
+    )
 }
 
 @Composable

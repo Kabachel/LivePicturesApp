@@ -33,7 +33,7 @@ internal fun Header(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(all = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -94,7 +94,7 @@ private fun FrameButtons(
         Icon(
             painter = painterResource(R.drawable.ic_file_plus),
             contentDescription = "Create frame",
-            tint = LivePicturesTheme.colors.gray,
+            tint = LivePicturesTheme.colors.white,
             modifier = Modifier
                 .size(32.dp)
                 .weight(1f, fill = false)
@@ -104,7 +104,7 @@ private fun FrameButtons(
         Icon(
             painter = painterResource(R.drawable.ic_layers),
             contentDescription = "Show all frames",
-            tint = LivePicturesTheme.colors.gray,
+            tint = LivePicturesTheme.colors.white,
             modifier = Modifier
                 .size(32.dp)
                 .weight(1f, fill = false)
