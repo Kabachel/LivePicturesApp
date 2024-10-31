@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -44,11 +45,13 @@ import com.example.livepicturesapp.editor.ui.dialogs.ShowFramesDialog
 import com.example.livepicturesapp.editor.utils.dragMotionEvent
 import com.example.livepicturesapp.ui.components.EmptySpacer
 import com.example.livepicturesapp.ui.theme.LivePicturesTheme
+import java.util.UUID
 
 val frameRepository = FrameRepository()
 
 @Composable
 fun EditorScreenContent() {
+    val frameUuid = remember { mutableStateOf<UUID>(UUID.randomUUID()) }
     val paths = remember { mutableStateListOf<DrawingPath>() }
     val pathsUndone = remember { mutableStateListOf<DrawingPath>() }
     val motionType = remember { mutableStateOf(MotionType.Idle) }
@@ -61,6 +64,12 @@ fun EditorScreenContent() {
     val showColorPickerDialog = remember { mutableStateOf(false) }
     val showFramesDialog = remember { mutableStateOf(false) }
 
+    LaunchedEffect(Unit) {
+        val frame = Frame(emptyList())
+        frameUuid.value = frame.uuid
+        frameRepository.addFrame(frame.uuid, frame)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -72,6 +81,7 @@ fun EditorScreenContent() {
         Header(
             isPathsEmpty = paths.isEmpty(),
             isPathsUndoneEmpty = pathsUndone.isEmpty(),
+            isDeleteFrameEnabled = frameRepository.getFrames().size > 1,
             onUndoClick = {
                 if (paths.isNotEmpty()) {
                     val lastDrawingPath = paths.last()
@@ -86,10 +96,29 @@ fun EditorScreenContent() {
                     paths += DrawingPath(lastDrawingPath.path, lastDrawingPath.properties.copy())
                 }
             },
-            onDeleteFrameClick = {},
+            onDeleteFrameClick = {
+                if (frameRepository.getFrames().size > 1) {
+                    val newFrame = frameRepository.deleteFrameByUuid(frameUuid.value)
+                    if (newFrame != null) {
+                        paths.clear()
+                        pathsUndone.clear()
+                        currentPath.value = Path()
+                        currentPosition.value = Offset.Unspecified
+                        previousPosition.value = Offset.Unspecified
+                        currentPathProperty.value = currentPathProperty.value.copy()
+
+                        frameUuid.value = newFrame.uuid
+                        paths += newFrame.drawingPaths
+                    } else {
+                        println("deleteFrameByUuid(${frameUuid.value}) returns null!")
+                    }
+                }
+            },
             onCreateFrameClick = {
-                val frame = Frame(paths.toList())
-                frameRepository.addFrame(frame)
+                frameRepository.updateDrawingPathsByUuid(frameUuid.value, paths.toList())
+                val newFrame = Frame(emptyList())
+                frameRepository.addFrame(frameUuid.value, newFrame)
+                frameUuid.value = newFrame.uuid
 
                 paths.clear()
                 pathsUndone.clear()
@@ -98,7 +127,10 @@ fun EditorScreenContent() {
                 previousPosition.value = Offset.Unspecified
                 currentPathProperty.value = currentPathProperty.value.copy()
             },
-            onShowFramesClick = { showFramesDialog.value = !showFramesDialog.value },
+            onShowFramesClick = {
+                frameRepository.updateDrawingPathsByUuid(frameUuid.value, paths.toList())
+                showFramesDialog.value = !showFramesDialog.value
+            },
             onPauseClick = {},
             onPlayClick = {},
         )
@@ -141,6 +173,8 @@ fun EditorScreenContent() {
         frames = frameRepository.getFrames(),
         showFramesDialog = showFramesDialog,
         onFrameSelected = { selectedFrame ->
+            frameRepository.updateDrawingPathsByUuid(frameUuid.value, paths.toList())
+
             paths.clear()
             pathsUndone.clear()
             currentPath.value = Path()
@@ -148,6 +182,7 @@ fun EditorScreenContent() {
             previousPosition.value = Offset.Unspecified
             currentPathProperty.value = currentPathProperty.value.copy()
 
+            frameUuid.value = selectedFrame.uuid
             paths += selectedFrame.drawingPaths
         }
     )

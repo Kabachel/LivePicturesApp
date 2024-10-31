@@ -20,8 +20,10 @@ import com.example.livepicturesapp.ui.theme.LivePicturesTheme
 
 @Composable
 internal fun Header(
+    // TODO rename with "enabled"
     isPathsEmpty: Boolean,
     isPathsUndoneEmpty: Boolean,
+    isDeleteFrameEnabled: Boolean,
     onUndoClick: () -> Unit,
     onRedoClick: () -> Unit,
     onDeleteFrameClick: () -> Unit,
@@ -38,7 +40,7 @@ internal fun Header(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         ArrowsButtons(onUndoClick, onRedoClick, isPathsEmpty, isPathsUndoneEmpty)
-        FrameButtons(onDeleteFrameClick, onCreateFrameClick, onShowFramesClick)
+        FrameButtons(isDeleteFrameEnabled, onDeleteFrameClick, onCreateFrameClick, onShowFramesClick)
         PlayPauseButtons(onPauseClick, onPlayClick)
     }
 }
@@ -76,6 +78,7 @@ private fun ArrowsButtons(
 
 @Composable
 private fun FrameButtons(
+    isDeleteFrameEnabled: Boolean,
     onDeleteFrameClick: () -> Unit,
     onCreateFrameClick: () -> Unit,
     onShowFramesClick: () -> Unit
@@ -84,12 +87,12 @@ private fun FrameButtons(
         Icon(
             painter = painterResource(R.drawable.ic_bin),
             contentDescription = "Delete frame",
-            tint = LivePicturesTheme.colors.gray,
+            tint = if (isDeleteFrameEnabled) LivePicturesTheme.colors.white else LivePicturesTheme.colors.gray,
             modifier = Modifier
                 .size(32.dp)
                 .weight(1f, fill = false)
                 .clip(CircleShape)
-                .clickable { onDeleteFrameClick() },
+                .clickable(enabled = isDeleteFrameEnabled) { onDeleteFrameClick() },
         )
         Icon(
             painter = painterResource(R.drawable.ic_file_plus),
@@ -150,6 +153,7 @@ private fun HeaderPreview() {
         Header(
             isPathsEmpty = false,
             isPathsUndoneEmpty = false,
+            isDeleteFrameEnabled = true,
             onUndoClick = {},
             onRedoClick = {},
             onDeleteFrameClick = {},
