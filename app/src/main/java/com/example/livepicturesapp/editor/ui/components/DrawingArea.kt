@@ -43,7 +43,8 @@ internal fun ColumnScope.DrawingArea(
     previousPosition: MutableState<Offset>,
     interactMode: MutableState<InteractType>,
     currentPath: MutableState<Path>,
-    currentPathProperty: MutableState<PathProperties>
+    currentPathProperty: MutableState<PathProperties>,
+    isAnimationShowing: Boolean
 ) {
     Box(
         modifier = Modifier
@@ -57,7 +58,18 @@ internal fun ColumnScope.DrawingArea(
             contentDescription = "Drawing area background",
             contentScale = ContentScale.FillBounds,
         )
-        DrawingAreaContent(paths, previousFrames, pathsUndone, motionType, currentPosition, previousPosition, interactMode, currentPath, currentPathProperty)
+        DrawingAreaContent(
+            paths,
+            previousFrames,
+            pathsUndone,
+            motionType,
+            currentPosition,
+            previousPosition,
+            interactMode,
+            currentPath,
+            currentPathProperty,
+            isAnimationShowing
+        )
     }
 }
 
@@ -71,7 +83,8 @@ private fun DrawingAreaContent(
     _previousPosition: MutableState<Offset>,
     _interactMode: MutableState<InteractType>,
     _currentPath: MutableState<Path>,
-    _currentPathProperty: MutableState<PathProperties>
+    _currentPathProperty: MutableState<PathProperties>,
+    isAnimationShowing: Boolean
 ) {
     val motionType by _motionType
     val currentPosition by _currentPosition
@@ -82,7 +95,7 @@ private fun DrawingAreaContent(
 
     val drawModifier = Modifier
         .fillMaxSize()
-        .dragMotionEvent(
+        .then(if (!isAnimationShowing) Modifier.dragMotionEvent(
             onDragStart = { pointerInputChange ->
                 _motionType.value = MotionType.Down
                 _currentPosition.value = pointerInputChange.position
@@ -110,7 +123,7 @@ private fun DrawingAreaContent(
                 _motionType.value = MotionType.Up
                 _currentPosition.value = pointerInputChange.position
             }
-        )
+        ) else Modifier)
 
     Canvas(modifier = drawModifier) {
         when (motionType) {

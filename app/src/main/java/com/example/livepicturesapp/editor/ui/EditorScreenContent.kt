@@ -34,8 +34,10 @@ import java.util.UUID
 
 val frameRepository = FrameRepository()
 
+// TODO add feature to change numbers of previous frames
 private var PREVIOUS_FRAMES_VISIBLE_COUNT = 2
 
+// TODO do less recompositions, do split on components and less stateful
 @Composable
 fun EditorScreenContent() {
     val frameUuid = remember { mutableStateOf<UUID>(UUID.randomUUID()) }
@@ -51,6 +53,7 @@ fun EditorScreenContent() {
     val showPropertiesDialog = remember { mutableStateOf(false) }
     val showColorPickerDialog = remember { mutableStateOf(false) }
     val showFramesDialog = remember { mutableStateOf(false) }
+    val isAnimationShowing = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         val frame = Frame(emptyList())
@@ -70,6 +73,7 @@ fun EditorScreenContent() {
             isPathsEmpty = paths.isEmpty(),
             isPathsUndoneEmpty = pathsUndone.isEmpty(),
             isDeleteFrameEnabled = frameRepository.getFrames().size > 1,
+            isAnimationShowing = isAnimationShowing.value,
             onUndoClick = {
                 if (paths.isNotEmpty()) {
                     val lastDrawingPath = paths.last()
@@ -124,18 +128,18 @@ fun EditorScreenContent() {
                 frameRepository.updateDrawingPathsByUuid(frameUuid.value, paths.toList())
                 showFramesDialog.value = !showFramesDialog.value
             },
-            onPauseClick = {},
-            onPlayClick = {},
+            onPauseClick = { isAnimationShowing.value = false },
+            onPlayClick = { isAnimationShowing.value = true },
         )
         EmptySpacer(32.dp)
-        DrawingArea(paths, previousFrames, pathsUndone, motionType, currentPosition, previousPosition, interactMode, currentPath, currentPathProperty)
+        DrawingArea(paths, previousFrames, pathsUndone, motionType, currentPosition, previousPosition, interactMode, currentPath, currentPathProperty, isAnimationShowing.value)
         EmptySpacer(22.dp)
-
         Footer(
             interactType = interactMode.value,
             selectedColor = currentPathProperty.value.color,
             showPathProperties = showPropertiesDialog.value,
             showColorPicker = showColorPickerDialog.value,
+            isAnimationShowing = isAnimationShowing.value,
             onPencilClick = {
                 if (interactMode.value == InteractType.Draw) {
                     interactMode.value = InteractType.Move

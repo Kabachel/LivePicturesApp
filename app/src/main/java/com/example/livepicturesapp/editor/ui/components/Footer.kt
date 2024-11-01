@@ -1,5 +1,6 @@
 package com.example.livepicturesapp.editor.ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -11,10 +12,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,13 +31,17 @@ internal fun Footer(
     selectedColor: Color,
     showPathProperties: Boolean,
     showColorPicker: Boolean,
+    isAnimationShowing: Boolean,
     onPencilClick: () -> Unit,
     onBrushClick: () -> Unit,
     onEraseClick: () -> Unit,
     onFiguresClick: () -> Unit,
     onColorClick: () -> Unit,
 ) {
+    val alpha by animateFloatAsState(if (isAnimationShowing) 0f else 1f, label = "alpha")
+    val offset by animateFloatAsState(if (isAnimationShowing) 20f else 0f, label = "offset")
     Row(
+        modifier = Modifier.graphicsLayer(alpha = alpha, translationY = offset),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
@@ -50,7 +57,7 @@ internal fun Footer(
                 .size(32.dp)
                 .weight(1f, fill = false)
                 .clip(CircleShape)
-                .clickable { onPencilClick() },
+                .clickable(enabled = !isAnimationShowing) { onPencilClick() },
         )
         Icon(
             painter = painterResource(R.drawable.ic_brush),
@@ -60,7 +67,7 @@ internal fun Footer(
                 .size(32.dp)
                 .weight(1f, fill = false)
                 .clip(CircleShape)
-                .clickable { onBrushClick() },
+                .clickable(enabled = !isAnimationShowing) { onBrushClick() },
         )
         Icon(
             painter = painterResource(R.drawable.ic_erase),
@@ -74,7 +81,7 @@ internal fun Footer(
                 .size(32.dp)
                 .weight(1f, fill = false)
                 .clip(CircleShape)
-                .clickable { onEraseClick() },
+                .clickable(enabled = !isAnimationShowing) { onEraseClick() },
         )
         Icon(
             painter = painterResource(R.drawable.ic_figures),
@@ -84,7 +91,7 @@ internal fun Footer(
                 .size(32.dp)
                 .weight(1f, fill = false)
                 .clip(CircleShape)
-                .clickable { onFiguresClick() },
+                .clickable(enabled = !isAnimationShowing) { onFiguresClick() },
         )
         Box(
             modifier = Modifier
@@ -94,7 +101,7 @@ internal fun Footer(
                 .padding(1.dp)
                 .clip(CircleShape)
                 .background(selectedColor)
-                .clickable(onClickLabel = "Choose color") { onColorClick() },
+                .clickable(enabled = !isAnimationShowing, onClickLabel = "Choose color") { onColorClick() },
         )
     }
 }
@@ -108,6 +115,7 @@ private fun FooterPreview() {
             selectedColor = Color.Blue,
             showPathProperties = false,
             showColorPicker = false,
+            isAnimationShowing = false,
             onPencilClick = {},
             onBrushClick = {},
             onEraseClick = {},
