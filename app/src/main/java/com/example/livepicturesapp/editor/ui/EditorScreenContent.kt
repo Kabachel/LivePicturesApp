@@ -22,6 +22,9 @@ import com.example.livepicturesapp.editor.model.InteractType
 import com.example.livepicturesapp.editor.model.MotionType
 import com.example.livepicturesapp.editor.model.PathProperties
 import com.example.livepicturesapp.editor.repository.FrameRepository
+import com.example.livepicturesapp.editor.ui.components.DrawingArea
+import com.example.livepicturesapp.editor.ui.components.Footer
+import com.example.livepicturesapp.editor.ui.components.Header
 import com.example.livepicturesapp.editor.ui.dialogs.ColorPickerDialog
 import com.example.livepicturesapp.editor.ui.dialogs.PathPropertiesDialog
 import com.example.livepicturesapp.editor.ui.dialogs.ShowFramesDialog
@@ -42,7 +45,7 @@ fun EditorScreenContent() {
     val motionType = remember { mutableStateOf(MotionType.Idle) }
     val currentPosition = remember { mutableStateOf(Offset.Unspecified) }
     val previousPosition = remember { mutableStateOf(Offset.Unspecified) }
-    val interactMode = remember { mutableStateOf(InteractType.Move) }
+    val interactMode = remember { mutableStateOf(InteractType.Draw) }
     val currentPath = remember { mutableStateOf(Path()) }
     val currentPathProperty = remember { mutableStateOf(PathProperties()) }
     val showPropertiesDialog = remember { mutableStateOf(false) }

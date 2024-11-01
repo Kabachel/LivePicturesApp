@@ -1,4 +1,4 @@
-package com.example.livepicturesapp.editor.ui
+package com.example.livepicturesapp.editor.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
