@@ -26,14 +26,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.livepicturesapp.R
 import com.example.livepicturesapp.editor.model.DrawingPath
+import com.example.livepicturesapp.editor.model.Frame
 import com.example.livepicturesapp.editor.model.InteractType
 import com.example.livepicturesapp.editor.model.MotionType
 import com.example.livepicturesapp.editor.model.PathProperties
 import com.example.livepicturesapp.editor.utils.dragMotionEvent
+import kotlin.math.pow
 
 @Composable
 internal fun ColumnScope.DrawingArea(
     paths: SnapshotStateList<DrawingPath>,
+    previousFrames: SnapshotStateList<Frame>,
     pathsUndone: SnapshotStateList<DrawingPath>,
     motionType: MutableState<MotionType>,
     currentPosition: MutableState<Offset>,
@@ -54,13 +57,14 @@ internal fun ColumnScope.DrawingArea(
             contentDescription = "Drawing area background",
             contentScale = ContentScale.FillBounds,
         )
-        DrawingAreaContent(paths, pathsUndone, motionType, currentPosition, previousPosition, interactMode, currentPath, currentPathProperty)
+        DrawingAreaContent(paths, previousFrames, pathsUndone, motionType, currentPosition, previousPosition, interactMode, currentPath, currentPathProperty)
     }
 }
 
 @Composable
 private fun DrawingAreaContent(
     paths: SnapshotStateList<DrawingPath>,
+    previousFrames: SnapshotStateList<Frame>,
     pathsUndone: SnapshotStateList<DrawingPath>,
     _motionType: MutableState<MotionType>,
     _currentPosition: MutableState<Offset>,
@@ -92,6 +96,12 @@ private fun DrawingAreaContent(
                     paths.forEach { drawingPath ->
                         val path: Path = drawingPath.path
                         path.translate(positionChange)
+                    }
+                    previousFrames.forEach { frame ->
+                        frame.drawingPaths.forEach { drawingPath ->
+                            val path: Path = drawingPath.path
+                            path.translate(positionChange)
+                        }
                     }
                     currentPath.translate(positionChange)
                 }
@@ -169,6 +179,39 @@ private fun DrawingAreaContent(
                     ),
                     blendMode = BlendMode.Clear
                 )
+            }
+        }
+
+        previousFrames.forEachIndexed { index, frame ->
+            val alpha = 0.5f.pow(index + 1)
+            println(alpha)
+            frame.drawingPaths.forEach {
+                val path = it.path
+                val property = it.properties
+
+                if (!property.isErase) {
+                    drawPath(
+                        color = property.color,
+                        path = path,
+                        style = Stroke(
+                            width = property.strokeWidth,
+                            cap = property.strokeCap,
+                            join = property.strokeJoin,
+                        ),
+                        alpha = alpha,
+                    )
+                } else {
+                    drawPath(
+                        color = Color.Transparent,
+                        path = path,
+                        style = Stroke(
+                            width = property.strokeWidth,
+                            cap = property.strokeCap,
+                            join = property.strokeJoin
+                        ),
+                        blendMode = BlendMode.Clear
+                    )
+                }
             }
         }
 

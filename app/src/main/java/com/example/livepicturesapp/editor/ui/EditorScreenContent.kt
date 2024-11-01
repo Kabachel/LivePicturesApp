@@ -9,6 +9,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -30,9 +31,12 @@ import java.util.UUID
 
 val frameRepository = FrameRepository()
 
+private var PREVIOUS_FRAMES_VISIBLE_COUNT = 2
+
 @Composable
 fun EditorScreenContent() {
     val frameUuid = remember { mutableStateOf<UUID>(UUID.randomUUID()) }
+    val previousFrames = remember { mutableStateListOf<Frame>() }
     val paths = remember { mutableStateListOf<DrawingPath>() }
     val pathsUndone = remember { mutableStateListOf<DrawingPath>() }
     val motionType = remember { mutableStateOf(MotionType.Idle) }
@@ -82,6 +86,7 @@ fun EditorScreenContent() {
                     val newFrame = frameRepository.deleteFrameByUuid(frameUuid.value)
                     if (newFrame != null) {
                         paths.clear()
+                        previousFrames.clear()
                         pathsUndone.clear()
                         currentPath.value = Path()
                         currentPosition.value = Offset.Unspecified
@@ -90,6 +95,7 @@ fun EditorScreenContent() {
 
                         frameUuid.value = newFrame.uuid
                         paths += newFrame.drawingPaths
+                        showPreviousFrames(newFrame, previousFrames)
                     } else {
                         println("deleteFrameByUuid(${frameUuid.value}) returns null!")
                     }
@@ -102,11 +108,14 @@ fun EditorScreenContent() {
                 frameUuid.value = newFrame.uuid
 
                 paths.clear()
+                previousFrames.clear()
                 pathsUndone.clear()
                 currentPath.value = Path()
                 currentPosition.value = Offset.Unspecified
                 previousPosition.value = Offset.Unspecified
                 currentPathProperty.value = currentPathProperty.value.copy()
+
+                showPreviousFrames(newFrame, previousFrames)
             },
             onShowFramesClick = {
                 frameRepository.updateDrawingPathsByUuid(frameUuid.value, paths.toList())
@@ -116,7 +125,7 @@ fun EditorScreenContent() {
             onPlayClick = {},
         )
         EmptySpacer(32.dp)
-        DrawingArea(paths, pathsUndone, motionType, currentPosition, previousPosition, interactMode, currentPath, currentPathProperty)
+        DrawingArea(paths, previousFrames, pathsUndone, motionType, currentPosition, previousPosition, interactMode, currentPath, currentPathProperty)
         EmptySpacer(22.dp)
 
         Footer(
@@ -157,6 +166,7 @@ fun EditorScreenContent() {
             frameRepository.updateDrawingPathsByUuid(frameUuid.value, paths.toList())
 
             paths.clear()
+            previousFrames.clear()
             pathsUndone.clear()
             currentPath.value = Path()
             currentPosition.value = Offset.Unspecified
@@ -165,8 +175,24 @@ fun EditorScreenContent() {
 
             frameUuid.value = selectedFrame.uuid
             paths += selectedFrame.drawingPaths
+            showPreviousFrames(selectedFrame, previousFrames)
         }
     )
+}
+
+private fun showPreviousFrames(
+    currentFrame: Frame,
+    previousFramePaths: SnapshotStateList<Frame>
+) {
+    val frames = frameRepository.getFrames()
+    for (i in frames.indices) {
+        if (frames[i].uuid == currentFrame.uuid) {
+            for (j in i - 1 downTo i - PREVIOUS_FRAMES_VISIBLE_COUNT) {
+                if (j < 0) break
+                previousFramePaths += frames[j]
+            }
+        }
+    }
 }
 
 @Preview
