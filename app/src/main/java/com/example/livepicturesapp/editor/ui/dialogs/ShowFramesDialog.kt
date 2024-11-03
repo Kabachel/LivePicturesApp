@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -30,7 +31,12 @@ import com.example.livepicturesapp.ui.components.EmptySpacer
 import com.example.livepicturesapp.ui.theme.LivePicturesTheme
 
 @Composable
-internal fun ShowFramesDialog(frames: List<Frame>, showFramesDialog: MutableState<Boolean>, onFrameSelected: (Frame) -> Unit) {
+internal fun ShowFramesDialog(
+    frames: List<Frame>,
+    showFramesDialog: MutableState<Boolean>,
+    onFrameSelected: (Frame) -> Unit,
+    onDeleteAllFramesSelected: () -> Unit
+) {
     if (showFramesDialog.value) {
         Dialog(onDismissRequest = { showFramesDialog.value = !showFramesDialog.value }) {
             Column(
@@ -44,7 +50,7 @@ internal fun ShowFramesDialog(frames: List<Frame>, showFramesDialog: MutableStat
             ) {
                 Text("All Frames")
                 LazyVerticalGrid(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().weight(1f, fill = false),
                     columns = GridCells.Fixed(3),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -62,6 +68,10 @@ internal fun ShowFramesDialog(frames: List<Frame>, showFramesDialog: MutableStat
                         )
                     }
                 }
+                FilledTonalButton(
+                    onClick = { onDeleteAllFramesSelected() },
+                    modifier = Modifier.fillMaxWidth(),
+                ) { Text("Delete all frames", color = LivePicturesTheme.colors.red) }
             }
         }
     }

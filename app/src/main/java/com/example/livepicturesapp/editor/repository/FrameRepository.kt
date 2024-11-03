@@ -10,7 +10,6 @@ import java.util.UUID
 class FrameRepository {
     private val frames: MutableList<Frame> = mutableListOf()
 
-    // TODO Add insert after current frame
     /**
      * Add element after given uuid, if uuid is not found -> add to end of the list
      */
@@ -33,6 +32,10 @@ class FrameRepository {
         } else return null
 
         return if (index > 0) frames[index - 1] else frames[index]
+    }
+
+    fun deleteAllFrames() {
+        frames.clear()
     }
 
     fun updateDrawingPathsByUuid(uuid: UUID, drawingPaths: List<DrawingPath>) {

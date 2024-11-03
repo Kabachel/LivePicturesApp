@@ -1,5 +1,6 @@
 package com.example.livepicturesapp.editor.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -65,6 +66,7 @@ fun EditorScreenContent() {
     val showColorPickerDialog = remember { mutableStateOf(false) }
     val showFramesDialog = remember { mutableStateOf(false) }
     val showConfirmDeleteFrameDialog = remember { mutableStateOf(false) }
+    val showConfirmDeleteAllFramesDialog = remember { mutableStateOf(false) }
     val isAnimationShowing = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -212,18 +214,27 @@ fun EditorScreenContent() {
         EmptySpacer(16.dp)
     }
 
-    ConfirmActionDialog(
-        params = ConfirmActionDialogParams(
-            title = "Delete current frame?",
-            confirmButtonParams = ButtonParams(text = "Delete", onClick = {
-                showConfirmDeleteFrameDialog.value = false
-                deleteCurrentFrame(frameUuid, paths, previousFrames, pathsUndone, currentPath, currentPosition, previousPosition, currentPathProperty)
-            }),
-            dismissButtonParams = ButtonParams(text = "Cancel", onClick = {
-                showConfirmDeleteFrameDialog.value = false
-            }),
-        ),
-        showConfirmActionDialog = showConfirmDeleteFrameDialog,
+    ConfirmDeleteFrameDialog(
+        showConfirmDeleteFrameDialog,
+        frameUuid,
+        paths,
+        previousFrames,
+        pathsUndone,
+        currentPath,
+        currentPosition,
+        previousPosition,
+        currentPathProperty
+    )
+    ConfirmDeleteAllFramesDialog(
+        showConfirmDeleteAllFramesDialog,
+        frameUuid,
+        paths,
+        previousFrames,
+        pathsUndone,
+        currentPath,
+        currentPosition,
+        previousPosition,
+        currentPathProperty
     )
     PathPropertiesDialog(currentPathProperty.value, showPropertiesDialog)
     ColorPickerDialog(currentPathProperty.value, showColorPickerDialog)
@@ -244,7 +255,65 @@ fun EditorScreenContent() {
             frameUuid.value = selectedFrame.uuid
             paths += selectedFrame.drawingPaths
             showPreviousFrames(selectedFrame, previousFrames)
+        },
+        onDeleteAllFramesSelected = {
+            showFramesDialog.value = false
+            showConfirmDeleteAllFramesDialog.value = true
         }
+    )
+}
+
+@Composable
+private fun ConfirmDeleteFrameDialog(
+    showConfirmDeleteFrameDialog: MutableState<Boolean>,
+    frameUuid: MutableState<UUID>,
+    paths: SnapshotStateList<DrawingPath>,
+    previousFrames: SnapshotStateList<Frame>,
+    pathsUndone: SnapshotStateList<DrawingPath>,
+    currentPath: MutableState<Path>,
+    currentPosition: MutableState<Offset>,
+    previousPosition: MutableState<Offset>,
+    currentPathProperty: MutableState<PathProperties>
+) {
+    ConfirmActionDialog(
+        params = ConfirmActionDialogParams(
+            title = "Delete current frame?",
+            confirmButtonParams = ButtonParams(text = "Delete", onClick = {
+                showConfirmDeleteFrameDialog.value = false
+                deleteCurrentFrame(frameUuid, paths, previousFrames, pathsUndone, currentPath, currentPosition, previousPosition, currentPathProperty)
+            }),
+            dismissButtonParams = ButtonParams(text = "Cancel", onClick = {
+                showConfirmDeleteFrameDialog.value = false
+            }),
+        ),
+        showConfirmActionDialog = showConfirmDeleteFrameDialog,
+    )
+}
+
+@Composable
+private fun ConfirmDeleteAllFramesDialog(
+    showConfirmDeleteAllFramesDialog: MutableState<Boolean>,
+    frameUuid: MutableState<UUID>,
+    paths: SnapshotStateList<DrawingPath>,
+    previousFrames: SnapshotStateList<Frame>,
+    pathsUndone: SnapshotStateList<DrawingPath>,
+    currentPath: MutableState<Path>,
+    currentPosition: MutableState<Offset>,
+    previousPosition: MutableState<Offset>,
+    currentPathProperty: MutableState<PathProperties>
+) {
+    ConfirmActionDialog(
+        params = ConfirmActionDialogParams(
+            title = "Delete all frames?",
+            confirmButtonParams = ButtonParams(text = "Delete", onClick = {
+                showConfirmDeleteAllFramesDialog.value = false
+                deleteAllFrames(frameUuid, paths, previousFrames, pathsUndone, currentPath, currentPosition, previousPosition, currentPathProperty)
+            }),
+            dismissButtonParams = ButtonParams(text = "Cancel", onClick = {
+                showConfirmDeleteAllFramesDialog.value = false
+            }),
+        ),
+        showConfirmActionDialog = showConfirmDeleteAllFramesDialog,
     )
 }
 
@@ -273,9 +342,33 @@ private fun deleteCurrentFrame(
             paths += newFrame.drawingPaths
             showPreviousFrames(newFrame, previousFrames)
         } else {
-            println("deleteFrameByUuid(${frameUuid.value}) returns null!")
+            Log.e(TAG, "deleteFrameByUuid(${frameUuid.value}) returns null!")
         }
     }
+}
+
+private fun deleteAllFrames(
+    frameUuid: MutableState<UUID>,
+    paths: SnapshotStateList<DrawingPath>,
+    previousFrames: SnapshotStateList<Frame>,
+    pathsUndone: SnapshotStateList<DrawingPath>,
+    currentPath: MutableState<Path>,
+    currentPosition: MutableState<Offset>,
+    previousPosition: MutableState<Offset>,
+    currentPathProperty: MutableState<PathProperties>
+) {
+    frameRepository.deleteAllFrames()
+    paths.clear()
+    previousFrames.clear()
+    pathsUndone.clear()
+    currentPath.value = Path()
+    currentPosition.value = Offset.Unspecified
+    previousPosition.value = Offset.Unspecified
+    currentPathProperty.value = currentPathProperty.value.copy()
+
+    val newFrame = Frame(emptyList())
+    frameRepository.addFrame(newFrame.uuid, newFrame)
+    frameUuid.value = newFrame.uuid
 }
 
 private fun showPreviousFrames(
