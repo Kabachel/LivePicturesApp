@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,11 +34,13 @@ internal fun Footer(
     showPathProperties: Boolean,
     showColorPicker: Boolean,
     isAnimationShowing: Boolean,
+    showSettings: Boolean,
     onPencilClick: () -> Unit,
     onBrushClick: () -> Unit,
     onEraseClick: () -> Unit,
     onFiguresClick: () -> Unit,
     onColorClick: () -> Unit,
+    onSettingsClick: () -> Unit,
 ) {
     val alpha by animateFloatAsState(if (isAnimationShowing) 0f else 1f, label = "alpha")
     val offset by animateFloatAsState(if (isAnimationShowing) 20f else 0f, label = "offset")
@@ -97,11 +101,27 @@ internal fun Footer(
             modifier = Modifier
                 .size(32.dp)
                 .weight(1f, fill = false)
-                .then(if (showColorPicker) Modifier.border(2.dp, LivePicturesTheme.colors.green, CircleShape) else Modifier)
+                .then(
+                    if (showColorPicker) {
+                        Modifier.border(2.dp, LivePicturesTheme.colors.green, CircleShape)
+                    } else {
+                        Modifier.border(2.dp, LivePicturesTheme.colors.white, CircleShape)
+                    }
+                )
                 .padding(1.dp)
                 .clip(CircleShape)
                 .background(selectedColor)
                 .clickable(enabled = !isAnimationShowing, onClickLabel = "Choose color") { onColorClick() },
+        )
+        Icon(
+            imageVector = Icons.Filled.Settings,
+            contentDescription = "Choose figure",
+            tint = if (showSettings) LivePicturesTheme.colors.green else LivePicturesTheme.colors.white,
+            modifier = Modifier
+                .size(32.dp)
+                .weight(1f, fill = false)
+                .clip(CircleShape)
+                .clickable(enabled = !isAnimationShowing) { onSettingsClick() },
         )
     }
 }
@@ -116,11 +136,13 @@ private fun FooterPreview() {
             showPathProperties = false,
             showColorPicker = false,
             isAnimationShowing = false,
+            showSettings = false,
             onPencilClick = {},
             onBrushClick = {},
             onEraseClick = {},
             onFiguresClick = {},
             onColorClick = {},
+            onSettingsClick = {}
         )
     }
 }

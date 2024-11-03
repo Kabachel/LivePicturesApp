@@ -196,7 +196,7 @@ private fun DrawingAreaContent(
         }
 
         previousFrames.forEachIndexed { index, frame ->
-            val alpha = 0.25f.pow(index + 1)
+            val alpha = 0.3f.pow(index + 1)
             frame.drawingPaths.forEach {
                 val path = it.path
                 val property = it.properties

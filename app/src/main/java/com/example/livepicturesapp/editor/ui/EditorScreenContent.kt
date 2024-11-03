@@ -32,6 +32,7 @@ import com.example.livepicturesapp.editor.ui.dialogs.ColorPickerDialog
 import com.example.livepicturesapp.editor.ui.dialogs.ConfirmActionDialog
 import com.example.livepicturesapp.editor.ui.dialogs.ConfirmActionDialogParams
 import com.example.livepicturesapp.editor.ui.dialogs.PathPropertiesDialog
+import com.example.livepicturesapp.editor.ui.dialogs.SettingsDialog
 import com.example.livepicturesapp.editor.ui.dialogs.ShowFramesDialog
 import com.example.livepicturesapp.ui.components.EmptySpacer
 import com.example.livepicturesapp.ui.theme.LivePicturesTheme
@@ -41,11 +42,8 @@ import java.util.UUID
 
 val frameRepository = FrameRepository()
 
-// TODO add feature to change numbers of previous frames
-private var PREVIOUS_FRAMES_VISIBLE_COUNT = 2
-
-// TODO add feature to change animation speed
-private var ANIMATION_DELAY_BETWEEN_FRAMES = 500L
+internal var PREVIOUS_FRAMES_VISIBLE_COUNT = 2
+internal var ANIMATION_DELAY_BETWEEN_FRAMES = 500L
 
 private const val TAG = "EditorScreenContent"
 
@@ -67,6 +65,7 @@ fun EditorScreenContent() {
     val showFramesDialog = remember { mutableStateOf(false) }
     val showConfirmDeleteFrameDialog = remember { mutableStateOf(false) }
     val showConfirmDeleteAllFramesDialog = remember { mutableStateOf(false) }
+    val showSettingsDialog = remember { mutableStateOf(false) }
     val isAnimationShowing = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -190,6 +189,7 @@ fun EditorScreenContent() {
             showPathProperties = showPropertiesDialog.value,
             showColorPicker = showColorPickerDialog.value,
             isAnimationShowing = isAnimationShowing.value,
+            showSettings = showSettingsDialog.value,
             onPencilClick = {
                 if (interactMode.value == InteractType.Draw) {
                     interactMode.value = InteractType.Move
@@ -210,10 +210,12 @@ fun EditorScreenContent() {
             },
             onFiguresClick = {},
             onColorClick = { showColorPickerDialog.value = !showColorPickerDialog.value },
+            onSettingsClick = { showSettingsDialog.value = !showSettingsDialog.value }
         )
         EmptySpacer(16.dp)
     }
 
+    SettingsDialog(showSettingsDialog)
     ConfirmDeleteFrameDialog(
         showConfirmDeleteFrameDialog,
         frameUuid,
