@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,7 +26,10 @@ import com.example.livepicturesapp.editor.repository.FrameRepository
 import com.example.livepicturesapp.editor.ui.components.DrawingArea
 import com.example.livepicturesapp.editor.ui.components.Footer
 import com.example.livepicturesapp.editor.ui.components.Header
+import com.example.livepicturesapp.editor.ui.dialogs.ButtonParams
 import com.example.livepicturesapp.editor.ui.dialogs.ColorPickerDialog
+import com.example.livepicturesapp.editor.ui.dialogs.ConfirmActionDialog
+import com.example.livepicturesapp.editor.ui.dialogs.ConfirmActionDialogParams
 import com.example.livepicturesapp.editor.ui.dialogs.PathPropertiesDialog
 import com.example.livepicturesapp.editor.ui.dialogs.ShowFramesDialog
 import com.example.livepicturesapp.ui.components.EmptySpacer
@@ -60,6 +64,7 @@ fun EditorScreenContent() {
     val showPropertiesDialog = remember { mutableStateOf(false) }
     val showColorPickerDialog = remember { mutableStateOf(false) }
     val showFramesDialog = remember { mutableStateOf(false) }
+    val showConfirmDeleteFrameDialog = remember { mutableStateOf(false) }
     val isAnimationShowing = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -116,26 +121,7 @@ fun EditorScreenContent() {
                     paths += DrawingPath(lastDrawingPath.path, lastDrawingPath.properties.copy())
                 }
             },
-            onDeleteFrameClick = {
-                if (frameRepository.getFrames().size > 1) {
-                    val newFrame = frameRepository.deleteFrameByUuid(frameUuid.value)
-                    if (newFrame != null) {
-                        paths.clear()
-                        previousFrames.clear()
-                        pathsUndone.clear()
-                        currentPath.value = Path()
-                        currentPosition.value = Offset.Unspecified
-                        previousPosition.value = Offset.Unspecified
-                        currentPathProperty.value = currentPathProperty.value.copy()
-
-                        frameUuid.value = newFrame.uuid
-                        paths += newFrame.drawingPaths
-                        showPreviousFrames(newFrame, previousFrames)
-                    } else {
-                        println("deleteFrameByUuid(${frameUuid.value}) returns null!")
-                    }
-                }
-            },
+            onDeleteFrameClick = { showConfirmDeleteFrameDialog.value = true },
             onCreateFrameClick = {
                 frameRepository.updateDrawingPathsByUuid(frameUuid.value, paths.toList())
                 val newFrame = Frame(emptyList())
@@ -226,6 +212,19 @@ fun EditorScreenContent() {
         EmptySpacer(16.dp)
     }
 
+    ConfirmActionDialog(
+        params = ConfirmActionDialogParams(
+            title = "Delete current frame?",
+            confirmButtonParams = ButtonParams(text = "Delete", onClick = {
+                showConfirmDeleteFrameDialog.value = false
+                deleteCurrentFrame(frameUuid, paths, previousFrames, pathsUndone, currentPath, currentPosition, previousPosition, currentPathProperty)
+            }),
+            dismissButtonParams = ButtonParams(text = "Cancel", onClick = {
+                showConfirmDeleteFrameDialog.value = false
+            }),
+        ),
+        showConfirmActionDialog = showConfirmDeleteFrameDialog,
+    )
     PathPropertiesDialog(currentPathProperty.value, showPropertiesDialog)
     ColorPickerDialog(currentPathProperty.value, showColorPickerDialog)
     ShowFramesDialog(
@@ -247,6 +246,36 @@ fun EditorScreenContent() {
             showPreviousFrames(selectedFrame, previousFrames)
         }
     )
+}
+
+private fun deleteCurrentFrame(
+    frameUuid: MutableState<UUID>,
+    paths: SnapshotStateList<DrawingPath>,
+    previousFrames: SnapshotStateList<Frame>,
+    pathsUndone: SnapshotStateList<DrawingPath>,
+    currentPath: MutableState<Path>,
+    currentPosition: MutableState<Offset>,
+    previousPosition: MutableState<Offset>,
+    currentPathProperty: MutableState<PathProperties>
+) {
+    if (frameRepository.getFrames().size > 1) {
+        val newFrame = frameRepository.deleteFrameByUuid(frameUuid.value)
+        if (newFrame != null) {
+            paths.clear()
+            previousFrames.clear()
+            pathsUndone.clear()
+            currentPath.value = Path()
+            currentPosition.value = Offset.Unspecified
+            previousPosition.value = Offset.Unspecified
+            currentPathProperty.value = currentPathProperty.value.copy()
+
+            frameUuid.value = newFrame.uuid
+            paths += newFrame.drawingPaths
+            showPreviousFrames(newFrame, previousFrames)
+        } else {
+            println("deleteFrameByUuid(${frameUuid.value}) returns null!")
+        }
+    }
 }
 
 private fun showPreviousFrames(

@@ -20,6 +20,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -41,7 +42,7 @@ import com.example.livepicturesapp.ui.theme.LivePicturesTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun PathPropertiesDialog(pathProperties: PathProperties, showPropertiesDialog: MutableState<Boolean>) {
-    var strokeWidth by remember { mutableStateOf(pathProperties.strokeWidth) }
+    var strokeWidth by remember { mutableFloatStateOf(pathProperties.strokeWidth) }
     var strokeCap by remember { mutableStateOf(pathProperties.strokeCap) }
     var strokeJoin by remember { mutableStateOf(pathProperties.strokeJoin) }
 

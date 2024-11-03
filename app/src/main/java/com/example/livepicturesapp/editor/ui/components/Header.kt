@@ -131,7 +131,7 @@ private fun FrameButtons(
                 .size(32.dp)
                 .weight(1f, fill = false)
                 .clip(CircleShape)
-                .clickable(enabled = isDeleteFrameEnabled || !isAnimationShowing) { onDeleteFrameClick() },
+                .clickable(enabled = isDeleteFrameEnabled && !isAnimationShowing) { onDeleteFrameClick() },
         )
         Icon(
             painter = painterResource(R.drawable.ic_file_plus),
