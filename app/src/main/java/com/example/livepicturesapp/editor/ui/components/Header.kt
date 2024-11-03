@@ -32,6 +32,7 @@ internal fun Header(
     onRedoClick: () -> Unit,
     onDeleteFrameClick: () -> Unit,
     onCreateFrameClick: () -> Unit,
+    onDuplicateFrameClick: () -> Unit,
     onShowFramesClick: () -> Unit,
     onPauseClick: () -> Unit,
     onPlayClick: () -> Unit,
@@ -46,22 +47,27 @@ internal fun Header(
         val alpha by animateFloatAsState(if (isAnimationShowing) 0f else 1f, label = "alpha")
         val offset by animateFloatAsState(if (isAnimationShowing) -20f else 0f, label = "offset")
         ArrowsButtons(
-            isAnimationShowing,
-            onUndoClick,
-            onRedoClick,
-            isPathsEmpty,
-            isPathsUndoneEmpty,
+            isAnimationShowing = isAnimationShowing,
+            onUndoClick = onUndoClick,
+            onRedoClick = onRedoClick,
+            isPathsEmpty = isPathsEmpty,
+            isPathsUndoneEmpty = isPathsUndoneEmpty,
             modifier = Modifier.graphicsLayer(alpha = alpha, translationY = offset),
         )
         FrameButtons(
-            isAnimationShowing,
-            isDeleteFrameEnabled,
-            onDeleteFrameClick,
-            onCreateFrameClick,
-            onShowFramesClick,
+            isAnimationShowing = isAnimationShowing,
+            isDeleteFrameEnabled = isDeleteFrameEnabled,
+            onDeleteFrameClick = onDeleteFrameClick,
+            onCreateFrameClick = onCreateFrameClick,
+            onDuplicateFrameClick = onDuplicateFrameClick,
+            onShowFramesClick = onShowFramesClick,
             modifier = Modifier.graphicsLayer(alpha = alpha, translationY = offset),
         )
-        PlayPauseButtons(isAnimationShowing, onPauseClick, onPlayClick)
+        PlayPauseButtons(
+            isAnimationShowing = isAnimationShowing,
+            onPauseClick = onPauseClick,
+            onPlayClick = onPlayClick
+        )
     }
 }
 
@@ -108,6 +114,7 @@ private fun FrameButtons(
     isDeleteFrameEnabled: Boolean,
     onDeleteFrameClick: () -> Unit,
     onCreateFrameClick: () -> Unit,
+    onDuplicateFrameClick: () -> Unit,
     onShowFramesClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -135,6 +142,16 @@ private fun FrameButtons(
                 .weight(1f, fill = false)
                 .clip(CircleShape)
                 .clickable(enabled = !isAnimationShowing) { onCreateFrameClick() },
+        )
+        Icon(
+            painter = painterResource(R.drawable.ic_duplicate_frame),
+            contentDescription = "Duplicate frame",
+            tint = LivePicturesTheme.colors.white,
+            modifier = Modifier
+                .size(32.dp)
+                .weight(1f, fill = false)
+                .clip(CircleShape)
+                .clickable(enabled = !isAnimationShowing) { onDuplicateFrameClick() },
         )
         Icon(
             painter = painterResource(R.drawable.ic_layers),
@@ -192,6 +209,7 @@ private fun HeaderPreview() {
             onRedoClick = {},
             onDeleteFrameClick = {},
             onCreateFrameClick = {},
+            onDuplicateFrameClick = {},
             onShowFramesClick = {},
             onPauseClick = {},
             onPlayClick = {},

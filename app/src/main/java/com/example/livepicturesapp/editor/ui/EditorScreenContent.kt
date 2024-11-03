@@ -152,6 +152,23 @@ fun EditorScreenContent() {
 
                 showPreviousFrames(newFrame, previousFrames)
             },
+            onDuplicateFrameClick = {
+                frameRepository.updateDrawingPathsByUuid(frameUuid.value, paths.toList())
+                val newFrame = Frame(paths.toList())
+                frameRepository.addFrame(frameUuid.value, newFrame)
+                frameUuid.value = newFrame.uuid
+
+                paths.clear()
+                previousFrames.clear()
+                pathsUndone.clear()
+                currentPath.value = Path()
+                currentPosition.value = Offset.Unspecified
+                previousPosition.value = Offset.Unspecified
+                currentPathProperty.value = currentPathProperty.value.copy()
+
+                paths += newFrame.drawingPaths
+                showPreviousFrames(newFrame, previousFrames)
+            },
             onShowFramesClick = {
                 frameRepository.updateDrawingPathsByUuid(frameUuid.value, paths.toList())
                 showFramesDialog.value = !showFramesDialog.value
