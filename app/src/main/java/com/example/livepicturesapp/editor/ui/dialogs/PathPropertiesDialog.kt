@@ -89,6 +89,7 @@ internal fun PathPropertiesDialog(pathProperties: PathProperties, showProperties
                     Text(
                         text = "Stroke Width: ",
                         fontSize = 16.sp,
+                        color = LivePicturesTheme.colors.black,
                         modifier = Modifier.padding(horizontal = 12.dp)
                     )
                     TextField(

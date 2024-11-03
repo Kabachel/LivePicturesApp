@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.livepicturesapp.editor.ui.ANIMATION_DELAY_BETWEEN_FRAMES
@@ -54,8 +55,11 @@ internal fun SettingsDialog(showSettingsDialog: MutableState<Boolean>) {
                 Text(
                     text = "Animation delay between frames (ms)",
                     style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center,
+                    color = LivePicturesTheme.colors.black,
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
+                EmptySpacer(8.dp)
                 TextField(
                     value = animationDelay.toString(),
                     onValueChange = {
@@ -74,8 +78,11 @@ internal fun SettingsDialog(showSettingsDialog: MutableState<Boolean>) {
                 Text(
                     text = "Previous frames visible count",
                     style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center,
+                    color = LivePicturesTheme.colors.black,
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
+                EmptySpacer(8.dp)
                 TextField(
                     value = previousFramesVisibleCount.toString(),
                     onValueChange = {

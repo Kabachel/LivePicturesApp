@@ -20,6 +20,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asAndroidPath
@@ -48,7 +49,7 @@ internal fun ShowFramesDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text("All Frames")
+                Text("All Frames", color = LivePicturesTheme.colors.black)
                 LazyVerticalGrid(
                     modifier = Modifier.fillMaxWidth().weight(1f, fill = false),
                     columns = GridCells.Fixed(3),
@@ -89,7 +90,7 @@ private fun FrameCard(
     ) {
         val whiteColor = LivePicturesTheme.colors.white
 
-        Text("$index Layer")
+        Text("$index Layer", color = LivePicturesTheme.colors.black)
         EmptySpacer(8.dp)
         Canvas(
             modifier = Modifier
@@ -97,6 +98,7 @@ private fun FrameCard(
                 .height(200.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .border(2.dp, LivePicturesTheme.colors.black, RoundedCornerShape(16.dp))
+                .background(color = Color.White),
         ) {
             frame.drawingPaths.forEach {
                 val transformedPath = Path()

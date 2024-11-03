@@ -25,10 +25,19 @@ val LocalLivePicturesColors = staticCompositionLocalOf {
     )
 }
 
-val livePicturesColors = LivePicturesColors(
+val darkThemeLivePicturesColors = LivePicturesColors(
     green = Color(0xFFA8DB10),
     white = Color(0xFFFFFFFF),
     black = Color(0xFF000000),
+    blue = Color(0xFF1976D2),
+    red = Color(0xFFFF3D00),
+    gray = Color(0xFF8B8B8B),
+)
+
+val lightThemeLivePicturesColors = LivePicturesColors(
+    green = Color(0xFFA8DB10),
+    white = Color(0xFF000000),
+    black = Color(0xFFFFFFFF),
     blue = Color(0xFF1976D2),
     red = Color(0xFFFF3D00),
     gray = Color(0xFF8B8B8B),
