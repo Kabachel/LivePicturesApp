@@ -30,12 +30,19 @@ import com.example.livepicturesapp.editor.ui.dialogs.PathPropertiesDialog
 import com.example.livepicturesapp.editor.ui.dialogs.ShowFramesDialog
 import com.example.livepicturesapp.ui.components.EmptySpacer
 import com.example.livepicturesapp.ui.theme.LivePicturesTheme
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import java.util.UUID
 
 val frameRepository = FrameRepository()
 
 // TODO add feature to change numbers of previous frames
 private var PREVIOUS_FRAMES_VISIBLE_COUNT = 2
+
+// TODO add feature to change animation speed
+private var ANIMATION_DELAY_BETWEEN_FRAMES = 500L
+
+private const val TAG = "EditorScreenContent"
 
 // TODO do less recompositions, do split on components and less stateful
 @Composable
@@ -59,6 +66,27 @@ fun EditorScreenContent() {
         val frame = Frame(emptyList())
         frameUuid.value = frame.uuid
         frameRepository.addFrame(frame.uuid, frame)
+    }
+
+    LaunchedEffect(key1 = isAnimationShowing.value) {
+        if (isAnimationShowing.value) {
+            previousFrames.clear()
+            // TODO maybe do not from start? but with current open frame?
+            var i = 0
+            val allFrames = frameRepository.getFrames()
+            while (true) {
+                val currentFrame = allFrames[i]
+                paths.clear()
+                paths += currentFrame.drawingPaths
+                frameUuid.value = currentFrame.uuid
+                delay(ANIMATION_DELAY_BETWEEN_FRAMES)
+                if (i == allFrames.lastIndex) i = 0 else i++
+            }
+        } else {
+            cancel()
+            val currentFrame = frameRepository.getFrames().find { it.uuid == frameUuid.value }
+            currentFrame?.let { showPreviousFrames(it, previousFrames) }
+        }
     }
 
     Column(
@@ -128,11 +156,28 @@ fun EditorScreenContent() {
                 frameRepository.updateDrawingPathsByUuid(frameUuid.value, paths.toList())
                 showFramesDialog.value = !showFramesDialog.value
             },
-            onPauseClick = { isAnimationShowing.value = false },
-            onPlayClick = { isAnimationShowing.value = true },
+            onPauseClick = {
+                frameRepository.updateDrawingPathsByUuid(frameUuid.value, paths.toList())
+                isAnimationShowing.value = false
+            },
+            onPlayClick = {
+                frameRepository.updateDrawingPathsByUuid(frameUuid.value, paths.toList())
+                isAnimationShowing.value = true
+            },
         )
         EmptySpacer(32.dp)
-        DrawingArea(paths, previousFrames, pathsUndone, motionType, currentPosition, previousPosition, interactMode, currentPath, currentPathProperty, isAnimationShowing.value)
+        DrawingArea(
+            paths,
+            previousFrames,
+            pathsUndone,
+            motionType,
+            currentPosition,
+            previousPosition,
+            interactMode,
+            currentPath,
+            currentPathProperty,
+            isAnimationShowing.value
+        )
         EmptySpacer(22.dp)
         Footer(
             interactType = interactMode.value,
