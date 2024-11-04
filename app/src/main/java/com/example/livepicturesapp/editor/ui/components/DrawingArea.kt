@@ -125,6 +125,43 @@ private fun DrawingAreaContent(
             }
         ) else Modifier)
 
+    previousFrames.forEachIndexed { index, frame ->
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val checkPoint = drawContext.canvas.nativeCanvas.saveLayer(null, null)
+
+            val alpha = 0.3f.pow(index + 1)
+            frame.drawingPaths.forEach {
+                val path = it.path
+                val property = it.properties
+
+                if (!property.isErase) {
+                    drawPath(
+                        color = property.color,
+                        path = path,
+                        style = Stroke(
+                            width = property.strokeWidth,
+                            cap = property.strokeCap,
+                            join = property.strokeJoin,
+                        ),
+                        alpha = alpha,
+                    )
+                } else {
+                    drawPath(
+                        color = Color.Transparent,
+                        path = path,
+                        style = Stroke(
+                            width = property.strokeWidth,
+                            cap = property.strokeCap,
+                            join = property.strokeJoin
+                        ),
+                        blendMode = BlendMode.Clear
+                    )
+                }
+            }
+            drawContext.canvas.nativeCanvas.restoreToCount(checkPoint)
+        }
+    }
+
     Canvas(modifier = drawModifier) {
         when (motionType) {
             MotionType.Down -> {
@@ -167,6 +204,38 @@ private fun DrawingAreaContent(
 
         val checkPoint = drawContext.canvas.nativeCanvas.saveLayer(null, null)
 
+//        previousFrames.forEachIndexed { index, frame ->
+//            val alpha = 0.3f.pow(index + 1)
+//            frame.drawingPaths.forEach {
+//                val path = it.path
+//                val property = it.properties
+//
+//                if (!property.isErase) {
+//                    drawPath(
+//                        color = property.color,
+//                        path = path,
+//                        style = Stroke(
+//                            width = property.strokeWidth,
+//                            cap = property.strokeCap,
+//                            join = property.strokeJoin,
+//                        ),
+//                        alpha = alpha,
+//                    )
+//                } else {
+//                    drawPath(
+//                        color = Color.Transparent,
+//                        path = path,
+//                        style = Stroke(
+//                            width = property.strokeWidth,
+//                            cap = property.strokeCap,
+//                            join = property.strokeJoin
+//                        ),
+//                        blendMode = BlendMode.Clear
+//                    )
+//                }
+//            }
+//        }
+
         paths.forEach {
             val path = it.path
             val property = it.properties
@@ -192,38 +261,6 @@ private fun DrawingAreaContent(
                     ),
                     blendMode = BlendMode.Clear
                 )
-            }
-        }
-
-        previousFrames.forEachIndexed { index, frame ->
-            val alpha = 0.3f.pow(index + 1)
-            frame.drawingPaths.forEach {
-                val path = it.path
-                val property = it.properties
-
-                if (!property.isErase) {
-                    drawPath(
-                        color = property.color,
-                        path = path,
-                        style = Stroke(
-                            width = property.strokeWidth,
-                            cap = property.strokeCap,
-                            join = property.strokeJoin,
-                        ),
-                        alpha = alpha,
-                    )
-                } else {
-                    drawPath(
-                        color = Color.Transparent,
-                        path = path,
-                        style = Stroke(
-                            width = property.strokeWidth,
-                            cap = property.strokeCap,
-                            join = property.strokeJoin
-                        ),
-                        blendMode = BlendMode.Clear
-                    )
-                }
             }
         }
 
