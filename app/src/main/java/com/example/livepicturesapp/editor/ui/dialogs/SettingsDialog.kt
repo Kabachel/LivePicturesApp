@@ -2,6 +2,7 @@ package com.example.livepicturesapp.editor.ui.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,6 +10,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -16,6 +18,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -31,9 +34,10 @@ import com.example.livepicturesapp.ui.components.EmptySpacer
 import com.example.livepicturesapp.ui.theme.LivePicturesTheme
 
 @Composable
-internal fun SettingsDialog(showSettingsDialog: MutableState<Boolean>) {
+internal fun SettingsDialog(showSettingsDialog: MutableState<Boolean>, showDialogWhenDeletingFrame: MutableState<Boolean>) {
     var animationDelay by remember { mutableLongStateOf(ANIMATION_DELAY_BETWEEN_FRAMES) }
     var previousFramesVisibleCount by remember { mutableIntStateOf(PREVIOUS_FRAMES_VISIBLE_COUNT) }
+    var showDialogWhenDeletingFrameInternal by remember { mutableStateOf(showDialogWhenDeletingFrame.value) }
 
     if (showSettingsDialog.value) {
         Dialog(onDismissRequest = { showSettingsDialog.value = false }) {
@@ -99,12 +103,30 @@ internal fun SettingsDialog(showSettingsDialog: MutableState<Boolean>) {
                 )
                 EmptySpacer(16.dp)
 
+                Row {
+                    Text(
+                        text = "Show dialog when deleting frame",
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center,
+                        color = LivePicturesTheme.colors.black,
+                        modifier = Modifier.padding(horizontal = 12.dp).weight(1f),
+                    )
+                    Switch(
+                        checked = showDialogWhenDeletingFrameInternal,
+                        onCheckedChange = {
+                            showDialogWhenDeletingFrameInternal = it
+                        },
+                    )
+                }
+                EmptySpacer(16.dp)
+
                 FilledTonalButton(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
                         showSettingsDialog.value = false
                         ANIMATION_DELAY_BETWEEN_FRAMES = animationDelay
                         PREVIOUS_FRAMES_VISIBLE_COUNT = previousFramesVisibleCount
+                        showDialogWhenDeletingFrame.value = showDialogWhenDeletingFrameInternal
                     },
                 ) { Text("Apply") }
             }

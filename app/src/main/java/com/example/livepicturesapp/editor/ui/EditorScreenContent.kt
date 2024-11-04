@@ -66,6 +66,7 @@ fun EditorScreenContent() {
     val showConfirmDeleteFrameDialog = remember { mutableStateOf(false) }
     val showConfirmDeleteAllFramesDialog = remember { mutableStateOf(false) }
     val showSettingsDialog = remember { mutableStateOf(false) }
+    val showDialogWhenDeletingFrame = remember { mutableStateOf(true) }
     val isAnimationShowing = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -122,7 +123,20 @@ fun EditorScreenContent() {
                     paths += DrawingPath(lastDrawingPath.path, lastDrawingPath.properties.copy())
                 }
             },
-            onDeleteFrameClick = { showConfirmDeleteFrameDialog.value = true },
+            onDeleteFrameClick = {
+                onDeleteFrameClick(
+                    showDialogWhenDeletingFrame,
+                    showConfirmDeleteFrameDialog,
+                    frameUuid,
+                    paths,
+                    previousFrames,
+                    pathsUndone,
+                    currentPath,
+                    currentPosition,
+                    previousPosition,
+                    currentPathProperty
+                )
+            },
             onCreateFrameClick = {
                 frameRepository.updateDrawingPathsByUuid(frameUuid.value, paths.toList())
                 val newFrame = Frame(emptyList())
@@ -215,7 +229,7 @@ fun EditorScreenContent() {
         EmptySpacer(16.dp)
     }
 
-    SettingsDialog(showSettingsDialog)
+    SettingsDialog(showSettingsDialog, showDialogWhenDeletingFrame)
     ConfirmDeleteFrameDialog(
         showConfirmDeleteFrameDialog,
         frameUuid,
@@ -263,6 +277,34 @@ fun EditorScreenContent() {
             showConfirmDeleteAllFramesDialog.value = true
         }
     )
+}
+
+private fun onDeleteFrameClick(
+    showDialogWhenDeletingFrame: MutableState<Boolean>,
+    showConfirmDeleteFrameDialog: MutableState<Boolean>,
+    frameUuid: MutableState<UUID>,
+    paths: SnapshotStateList<DrawingPath>,
+    previousFrames: SnapshotStateList<Frame>,
+    pathsUndone: SnapshotStateList<DrawingPath>,
+    currentPath: MutableState<Path>,
+    currentPosition: MutableState<Offset>,
+    previousPosition: MutableState<Offset>,
+    currentPathProperty: MutableState<PathProperties>
+) {
+    if (showDialogWhenDeletingFrame.value) {
+        showConfirmDeleteFrameDialog.value = true
+    } else {
+        deleteCurrentFrame(
+            frameUuid,
+            paths,
+            previousFrames,
+            pathsUndone,
+            currentPath,
+            currentPosition,
+            previousPosition,
+            currentPathProperty
+        )
+    }
 }
 
 @Composable
