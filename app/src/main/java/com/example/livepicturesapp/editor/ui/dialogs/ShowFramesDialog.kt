@@ -88,8 +88,6 @@ private fun FrameCard(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val whiteColor = LivePicturesTheme.colors.white
-
         Text("$index Layer", color = LivePicturesTheme.colors.black)
         EmptySpacer(8.dp)
         Canvas(
@@ -125,7 +123,7 @@ private fun FrameCard(
                 } else {
                     drawPath(
                         // TODO hardcode color for erase, BlendMode.Clear is not working
-                        color = whiteColor,
+                        color = Color.White,
                         path = transformedPath,
                         style = Stroke(
                             width = (property.strokeWidth / 10) + 1,
